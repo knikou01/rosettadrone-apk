@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -789,5 +790,24 @@ public class Waypoint2Activity extends FragmentActivity implements View.OnClickL
         gMap.addMarker(new MarkerOptions().position(shenzhen).title("Marker in Norway"));
         gMap.moveCamera(CameraUpdateFactory.newLatLng(shenzhen));
 
+    }
+
+    @Override
+    public Intent registerReceiver(BroadcastReceiver receiver, IntentFilter filter) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            return super.registerReceiver(receiver, filter, Context.RECEIVER_NOT_EXPORTED);
+        } else {
+            return super.registerReceiver(receiver, filter);
+        }
+    }
+
+    @Override
+    public Intent registerReceiver(BroadcastReceiver receiver, IntentFilter filter, int flags) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if ((flags & (Context.RECEIVER_EXPORTED | Context.RECEIVER_NOT_EXPORTED)) == 0) {
+                flags |= Context.RECEIVER_NOT_EXPORTED;
+            }
+        }
+        return super.registerReceiver(receiver, filter, flags);
     }
 }

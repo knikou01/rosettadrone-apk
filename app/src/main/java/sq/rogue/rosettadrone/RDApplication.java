@@ -1,7 +1,11 @@
 package sq.rogue.rosettadrone;
 
 import android.app.Application;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.Build;
 
 import com.secneo.sdk.Helper;
 
@@ -43,19 +47,54 @@ public class RDApplication extends Application {
     }
 
     @Override
-    public void onCreate() {
-        super.onCreate();
-        isSimulator = false;
-    }
-
-    @Override
     protected void attachBaseContext(Context paramContext) {
         super.attachBaseContext(paramContext);
         Helper.install(RDApplication.this);
-
         if (simulatorApplication == null) {
             simulatorApplication = new DJISimulatorApplication();
             simulatorApplication.setContext(this);
+        }
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        isSimulator = false;
+        reinjectKeys();
+    }
+
+    public void reinjectKeys() {
+        injectDjiKey(this);
+        injectGoogleKey(this);
+    }
+
+    private void injectDjiKey(Context context) {
+        String key = KeyStore.INSTANCE.getDjiKey(context);
+        if (key == null) return;
+        try {
+            android.content.pm.ApplicationInfo appInfo = context.getPackageManager()
+                    .getApplicationInfo(context.getPackageName(),
+                            android.content.pm.PackageManager.GET_META_DATA);
+            if (appInfo.metaData != null) {
+                appInfo.metaData.putString("com.dji.sdk.API_KEY", key);
+            }
+        } catch (android.content.pm.PackageManager.NameNotFoundException e) {
+            android.util.Log.e("RDApplication", "Failed to inject DJI key", e);
+        }
+    }
+
+    private void injectGoogleKey(Context context) {
+        String key = KeyStore.INSTANCE.getGoogleKey(context);
+        if (key == null) return;
+        try {
+            android.content.pm.ApplicationInfo appInfo = context.getPackageManager()
+                    .getApplicationInfo(context.getPackageName(),
+                            android.content.pm.PackageManager.GET_META_DATA);
+            if (appInfo.metaData != null) {
+                appInfo.metaData.putString("com.google.android.geo.API_KEY", key);
+            }
+        } catch (android.content.pm.PackageManager.NameNotFoundException e) {
+            android.util.Log.e("RDApplication", "Failed to inject Google key", e);
         }
     }
 
@@ -65,12 +104,30 @@ public class RDApplication extends Application {
         if (product == null) return null;
         Camera camera = null;
         if (product instanceof Aircraft) {
-            camera = ((Aircraft) product).getCamera();
+            camera = product.getCamera();
         } else if (product instanceof HandHeld) {
-            camera = ((HandHeld) product).getCamera();
+            camera = product.getCamera();
         }
         return camera;
     }
+
+    @Override
+    public Intent registerReceiver(BroadcastReceiver receiver, IntentFilter filter) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            return super.registerReceiver(receiver, filter, Context.RECEIVER_NOT_EXPORTED);
+        } else {
+            return super.registerReceiver(receiver, filter);
+        }
+    }
+
+    @Override
+    public Intent registerReceiver(BroadcastReceiver receiver, IntentFilter filter, int flags) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            // If neither EXPORTED nor NOT_EXPORTED is set, add NOT_EXPORTED
+            if ((flags & (Context.RECEIVER_EXPORTED | Context.RECEIVER_NOT_EXPORTED)) == 0) {
+                flags |= Context.RECEIVER_NOT_EXPORTED;
+            }
+        }
+        return super.registerReceiver(receiver, filter, flags);
+    }
 }
-
-

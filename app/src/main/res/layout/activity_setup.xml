@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#1a1a1a"
+    android:padding="24dp"
+    android:fitsSystemWindows="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Title -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Welcome to RosettaDrone"
+            android:textColor="#FFFFFF"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="To get started, you need two API keys. This is a one-time setup."
+            android:textColor="#AAAAAA"
+            android:textSize="14sp"
+            android:layout_marginBottom="32dp" />
+
+        <!-- DJI Key Section -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Step 1 — DJI Developer Key"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="1. Go to developer.dji.com and create a free account.\n2. Go to Apps → Create App.\n3. Set App Name to anything, Package Name to: sq.rogue.rosettadrone\n4. Copy the API Key and paste it below."
+            android:textColor="#CCCCCC"
+            android:textSize="13sp"
+            android:lineSpacingExtra="4dp"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:id="@+id/btn_open_dji"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Open developer.dji.com →"
+            android:textColor="#4A90D9"
+            android:textSize="13sp"
+            android:paddingBottom="4dp"
+            android:layout_marginBottom="12dp" />
+
+        <EditText
+            android:id="@+id/input_dji_key"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Paste your DJI API Key here"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#666666"
+            android:background="@drawable/input_background"
+            android:padding="12dp"
+            android:inputType="text"
+            android:singleLine="true"
+            android:layout_marginBottom="32dp" />
+
+        <!-- Google Maps Key Section -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Step 2 — Google Maps Key"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="1. Go to console.cloud.google.com and create a project.\n2. Enable billing on the project (required, free tier available — you won\'t be charged for normal use).\n3. Go to APIs &amp; Services → Library, search for Maps SDK for Android and enable it.\n4. Go to APIs &amp; Services → Credentials → Create Credentials → API Key.\n5. Copy the key and paste it below."
+            android:textColor="#CCCCCC"
+            android:textSize="13sp"
+            android:lineSpacingExtra="4dp"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:id="@+id/btn_open_google"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Open console.cloud.google.com →"
+            android:textColor="#4A90D9"
+            android:textSize="13sp"
+            android:paddingBottom="4dp"
+            android:layout_marginBottom="12dp" />
+
+        <EditText
+            android:id="@+id/input_google_key"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Paste your Google Maps Key here"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#666666"
+            android:background="@drawable/input_background"
+            android:padding="12dp"
+            android:inputType="text"
+            android:singleLine="true"
+            android:layout_marginBottom="32dp" />
+
+        <!-- Error message -->
+        <TextView
+            android:id="@+id/text_error"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textColor="#FF5555"
+            android:textSize="13sp"
+            android:visibility="gone"
+            android:layout_marginBottom="12dp" />
+
+        <!-- Save button -->
+        <Button
+            android:id="@+id/btn_save"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Save and Continue"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#4A90D9"
+            android:padding="14dp"
+            android:layout_marginBottom="16dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Your keys are stored securely on this device and never shared."
+            android:textColor="#666666"
+            android:textSize="12sp"
+            android:gravity="center"
+            android:layout_marginBottom="32dp" />
+
+    </LinearLayout>
+</ScrollView>

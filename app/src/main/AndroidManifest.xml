@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="sq.rogue.rosettadrone">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <!-- DJI SDK need permission -->
     <!--
@@ -21,6 +20,9 @@
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.NEARBY_WIFI_DEVICES"
+        android:usesPermissionFlags="neverForLocation"
+        tools:targetApi="s" />
     <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS"
         tools:ignore="ProtectedPermissions" />
 
@@ -33,12 +35,6 @@
     <uses-feature
         android:glEsVersion="0x00020000"
         android:required="true" />
-
-    <!--
-    <uses-permission
-        android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS"
-        tools:ignore="ProtectedPermissions" />
-       -->
 
     <uses-permission
         android:name="android.permission.CHANGE_CONFIGURATION"
@@ -56,7 +52,18 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
+        android:enableOnBackInvokedCallback="false"
+        android:intentMatchingFlags="none"
         tools:targetApi="m">
+
+        <activity
+            android:name="sq.rogue.rosettadrone.SetupActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
 
         <activity
             android:name="sq.rogue.rosettadrone.ConnectionActivity"
@@ -64,20 +71,15 @@
             android:configChanges="orientation|screenSize|screenLayout"
             android:exported="true">
 
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                    <category android:name="android.intent.category.LAUNCHER" />
-                    <action android:name="android.hardware.usb.action.USB_ACCESSORY_ATTACHED" />
-                </intent-filter>
-
-                <!--  Spesify a spesific USB devide... can be used if one only whants to connect to a unique device... -->
+            <!--  Specify a specific USB device... can be used if one only wants to connect to a unique device... -->
             <meta-data
                 android:name="android.hardware.usb.action.USB_ACCESSORY_ATTACHED"
                 android:resource="@xml/accessory_filter" />
 
         </activity>
 
-        <activity android:name="sq.rogue.rosettadrone.MainActivity"
+        <activity
+            android:name="sq.rogue.rosettadrone.MainActivity"
             android:configChanges="orientation|screenSize"
             android:exported="true">
             <intent-filter>
@@ -102,9 +104,6 @@
             tools:ignore="Instantiatable">
         </service>
 
-        <!--<service android:name="sq.rogue.rosettadrone.video.VideoService">
-        </service>-->
-
         <!-- DJI SDK needed also by emulator, this is a problem... -->
         <uses-library
             android:name="com.android.future.usb.accessory"
@@ -125,6 +124,6 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_key" />
+
     </application>
 </manifest>
-

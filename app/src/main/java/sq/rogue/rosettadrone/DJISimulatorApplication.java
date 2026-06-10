@@ -75,27 +75,18 @@ public class DJISimulatorApplication extends Application {
             //Listens to the SDK registration result
             @Override
             public void onRegister(DJIError error) {
-                Log.e("TAG", error.toString());
+                Log.d(TAG, "onRegister: " + (error == null ? "success" : error.getDescription()));
 
                 if (error == DJISDKError.REGISTRATION_SUCCESS) {
-                    /*
-                    Handler handler = new Handler(Looper.getMainLooper());
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(getApplicationContext(), "Registration Success", Toast.LENGTH_LONG).show();
-                        }
-                    });
-                    */
                     DJISDKManager.getInstance().startConnectionToProduct();
-
                 } else {
-                    // TODO: Show an error dialog
+                    final String errorMsg = "SDK Registration Failed: " + error.getDescription();
+                    Log.e(TAG, errorMsg);
                     Handler handler = new Handler(Looper.getMainLooper());
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
-                            Toast.makeText(getApplicationContext(), "SDK Registration Failed. Check network settings", Toast.LENGTH_LONG).show();
+                            Toast.makeText(getApplicationContext(), errorMsg, Toast.LENGTH_LONG).show();
                         }
                     });
                 }

@@ -6,7 +6,6 @@
     android:orientation="vertical"
     android:textAlignment="textEnd">
 
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -104,11 +103,6 @@
                 android:textColor="@color/colorWhite"
                 android:textSize="18dp" />
 
-            <Space
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1" />
-
             <Button
                 android:id="@+id/btn_sim"
                 android:layout_width="300dp"
@@ -120,27 +114,29 @@
                 android:textColor="@color/colorWhite"
                 android:textSize="18dp" />
 
-            <Space
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1" />
-
-            <Space
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1" />
-
             <Button
                 android:id="@+id/btn_test"
                 android:layout_width="300dp"
                 android:layout_height="35dp"
                 android:layout_gravity="center"
+                android:layout_marginBottom="10dp"
                 android:background="@drawable/round_btn"
                 android:gravity="center"
-                android:scaleType="fitXY"
                 android:text="Test Mode"
                 android:textColor="@color/colorWhite"
                 android:textSize="18dp" />
+
+            <Button
+                android:id="@+id/btn_edit_keys"
+                android:layout_width="300dp"
+                android:layout_height="35dp"
+                android:layout_gravity="center"
+                android:background="@drawable/round_btn"
+                android:gravity="center"
+                android:text="Edit Keys"
+                android:textColor="@color/colorWhite"
+                android:textSize="18dp" />
+
         </LinearLayout>
 
         <Space
@@ -167,18 +163,6 @@
                 android:text="    "
                 android:textColor="@color/colorWhite"
                 android:textSize="15dp" />
-
-            <Space
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1" />
-
-
-            <Space
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1" />
-
 
             <Space
                 android:layout_width="wrap_content"
@@ -219,14 +203,10 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1" />
 
-            <!-- android:background="@drawable/logo"
-                 android:background="@drawable/esmart" -->
-
             <Space
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1" />
-
 
         </LinearLayout>
 
@@ -250,7 +230,6 @@
             android:layout_width="1dp"
             android:layout_height="fill_parent"
             android:layout_weight="1" />
-
 
     </LinearLayout>
 

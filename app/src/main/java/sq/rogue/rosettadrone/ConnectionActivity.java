@@ -74,6 +74,7 @@ public class ConnectionActivity extends Activity implements View.OnClickListener
     private Button mBtnOpen;
     private Button mBtnSim;
     private Button mBtnTest;
+    private Button mBtnEditKeys;
 
     private Handler mUIHandler;
     private static boolean running = false;
@@ -220,7 +221,7 @@ public class ConnectionActivity extends Activity implements View.OnClickListener
         // Register the broadcast receiver for receiving the device connection's changes.
         IntentFilter filter = new IntentFilter();
         filter.addAction(DJISimulatorApplication.FLAG_CONNECTION_CHANGE);
-        registerReceiver(mReceiver, filter);
+        ContextCompat.registerReceiver(this, mReceiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED);
     }
 
     void safeUnregisterBroadcast() {
@@ -312,6 +313,9 @@ public class ConnectionActivity extends Activity implements View.OnClickListener
         mBtnTest = (Button) findViewById(R.id.btn_test);
         mBtnTest.setOnClickListener(this);
 
+        mBtnEditKeys = (Button) findViewById(R.id.btn_edit_keys);
+        mBtnEditKeys.setOnClickListener(this);
+
         Context appContext = this.getBaseContext();
         String version = "Version: " + getAppVersion(appContext);
         Log.v(TAG, "" + version);
@@ -347,6 +351,12 @@ public class ConnectionActivity extends Activity implements View.OnClickListener
                 openMainActivity(AppMode.TEST_MODE);
                 break;
 
+            case R.id.btn_edit_keys:
+                Intent editIntent = new Intent(this, SetupActivity.class);
+                editIntent.putExtra(SetupActivity.EXTRA_EDIT_MODE, true);
+                startActivity(editIntent);
+                break;
+
             default:
                 break;
                 }
@@ -368,5 +378,24 @@ public class ConnectionActivity extends Activity implements View.OnClickListener
                 Toast.makeText(ConnectionActivity.this, msg, Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    @Override
+    public Intent registerReceiver(BroadcastReceiver receiver, IntentFilter filter) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            return super.registerReceiver(receiver, filter, Context.RECEIVER_NOT_EXPORTED);
+        } else {
+            return super.registerReceiver(receiver, filter);
+        }
+    }
+
+    @Override
+    public Intent registerReceiver(BroadcastReceiver receiver, IntentFilter filter, int flags) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if ((flags & (Context.RECEIVER_EXPORTED | Context.RECEIVER_NOT_EXPORTED)) == 0) {
+                flags |= Context.RECEIVER_NOT_EXPORTED;
+            }
+        }
+        return super.registerReceiver(receiver, filter, flags);
     }
 }
