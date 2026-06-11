@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
+import android.util.Log;
 
 import com.secneo.sdk.Helper;
 
@@ -31,13 +32,9 @@ public class RDApplication extends Application {
     }
 
     public static synchronized BaseProduct getProductOrDummy() {
-        if(isTestMode) {
-            // IMPORTANT: DummyProduct can not be instantiated nor referenced here (in RDApplication.java),
-            // because the SDK license protection system will crash the app.
-            // Instead, we need to use an auxiliar method defined in MainActivity
-            // BUG: return DummyProduct.getProductInstance();
+        if (isTestMode) {
             return MainActivity.createDummyProduct();
-            }else {
+        } else {
             return DJISDKManager.getInstance().getProduct();
         }
     }
@@ -49,6 +46,8 @@ public class RDApplication extends Application {
     @Override
     protected void attachBaseContext(Context paramContext) {
         super.attachBaseContext(paramContext);
+        // Use early (plain) key read — EncryptedSharedPreferences not available yet here
+        injectDjiKeyEarly(paramContext);
         Helper.install(RDApplication.this);
         if (simulatorApplication == null) {
             simulatorApplication = new DJISimulatorApplication();
@@ -60,16 +59,12 @@ public class RDApplication extends Application {
     public void onCreate() {
         super.onCreate();
         isSimulator = false;
-        reinjectKeys();
-    }
-
-    public void reinjectKeys() {
-        injectDjiKey(this);
         injectGoogleKey(this);
     }
 
-    private void injectDjiKey(Context context) {
-        String key = KeyStore.INSTANCE.getDjiKey(context);
+    private static void injectDjiKeyEarly(Context context) {
+        String key = KeyStore.INSTANCE.getDjiKeyEarly(context);
+        Log.d("RDApplication", "Injecting DJI key (early): " + (key != null ? "found" : "null"));
         if (key == null) return;
         try {
             android.content.pm.ApplicationInfo appInfo = context.getPackageManager()
@@ -77,14 +72,16 @@ public class RDApplication extends Application {
                             android.content.pm.PackageManager.GET_META_DATA);
             if (appInfo.metaData != null) {
                 appInfo.metaData.putString("com.dji.sdk.API_KEY", key);
+                Log.d("RDApplication", "DJI key injected successfully");
             }
         } catch (android.content.pm.PackageManager.NameNotFoundException e) {
-            android.util.Log.e("RDApplication", "Failed to inject DJI key", e);
+            Log.e("RDApplication", "Failed to inject DJI key", e);
         }
     }
 
-    private void injectGoogleKey(Context context) {
+    private static void injectGoogleKey(Context context) {
         String key = KeyStore.INSTANCE.getGoogleKey(context);
+        Log.d("RDApplication", "Injecting Google key: " + (key != null ? "found" : "null"));
         if (key == null) return;
         try {
             android.content.pm.ApplicationInfo appInfo = context.getPackageManager()
@@ -92,14 +89,15 @@ public class RDApplication extends Application {
                             android.content.pm.PackageManager.GET_META_DATA);
             if (appInfo.metaData != null) {
                 appInfo.metaData.putString("com.google.android.geo.API_KEY", key);
+                Log.d("RDApplication", "Google key injected successfully");
             }
         } catch (android.content.pm.PackageManager.NameNotFoundException e) {
-            android.util.Log.e("RDApplication", "Failed to inject Google key", e);
+            Log.e("RDApplication", "Failed to inject Google key", e);
         }
     }
 
     public static synchronized Camera getCameraInstance() {
-        if(isTestMode) return null;
+        if (isTestMode) return null;
         BaseProduct product = getProductOrDummy();
         if (product == null) return null;
         Camera camera = null;
@@ -123,7 +121,6 @@ public class RDApplication extends Application {
     @Override
     public Intent registerReceiver(BroadcastReceiver receiver, IntentFilter filter, int flags) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            // If neither EXPORTED nor NOT_EXPORTED is set, add NOT_EXPORTED
             if ((flags & (Context.RECEIVER_EXPORTED | Context.RECEIVER_NOT_EXPORTED)) == 0) {
                 flags |= Context.RECEIVER_NOT_EXPORTED;
             }

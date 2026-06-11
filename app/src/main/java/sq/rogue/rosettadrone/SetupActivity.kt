@@ -69,8 +69,6 @@ class SetupActivity : AppCompatActivity() {
             KeyStore.saveDjiKey(this, djiKey)
             KeyStore.saveGoogleKey(this, googleKey)
 
-            // Apply keys and trigger re-registration immediately
-            (application as RDApplication).reinjectKeys()
             RDApplication.startLoginApplication()
 
             if (editMode) {
