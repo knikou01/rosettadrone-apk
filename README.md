@@ -1,6 +1,6 @@
 # RosettaDrone APK
 
-A fork of [RosettaDrone](https://github.com/RosettaDrone/rosettadrone) that provides a ready-to-install APK — no need to build from source.
+A fork of [RosettaDrone](https://github.com/RosettaDrone/rosettadrone) that provides a ready to install APK, so there's no need to build from source.
 
 RosettaDrone is a MAVLink wrapper for DJI drones, allowing you to control DJI hardware using ground control stations like QGroundControl.
 
@@ -20,9 +20,9 @@ RosettaDrone is a MAVLink wrapper for DJI drones, allowing you to control DJI ha
 
 ## Getting your API keys
 
-**DJI key** — free, create an account at [developer.dji.com](https://developer.dji.com), create an app with package name `sq.rogue.rosettadrone`, and copy the API key.
+**DJI key**: free, create an account at [developer.dji.com](https://developer.dji.com), create an app with package name `sq.rogue.rosettadrone`, and copy the API key.
 
-**Google Maps key** — free tier available, create a project at [console.cloud.google.com](https://console.cloud.google.com), enable Maps SDK for Android, and generate an API key under Credentials.
+**Google Maps key**: free tier available, create a project at [console.cloud.google.com](https://console.cloud.google.com), enable Maps SDK for Android, and generate an API key under Credentials.
 
 ## Original project
 
@@ -30,4 +30,4 @@ All drone control logic is from the original [RosettaDrone](https://github.com/R
 
 ## License
 
-BSD 3-Clause — see [LICENSE](LICENSE)
+BSD 3-Clause: see [LICENSE](LICENSE)
