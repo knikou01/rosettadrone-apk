@@ -120,6 +120,10 @@ import static sq.rogue.rosettadrone.Functions.EARTH_RADIUS;
 import static sq.rogue.rosettadrone.util.getTimestampMicroseconds;
 import static sq.rogue.rosettadrone.util.safeSleep;
 
+import dji.common.flightcontroller.ObstacleDetectionSector;
+import dji.common.flightcontroller.VisionDetectionState;
+import dji.sdk.flightcontroller.FlightAssistant;
+
 enum YawDirection {
     DEST, // Look at destination
     POI,    // Look at POI
@@ -232,6 +236,8 @@ public class DroneModel implements CommonCallbacks.CompletionCallback {
     public MissionManager missionManager = new MissionManager(this);
     private long timerIgnoreMavLink = 0; // Timer to ignore MAVLink motion commands while user is moving the RC Joystick
     private boolean isAscending = false; // Used to detect when we are taking off and ascending to record the takeOffLocation when the drone finished ascending (when the GPS signal is better)
+    public float[] mLatestObstacleDistances = new float[8];
+    public volatile boolean mObstacleDataFresh = false;
 
     enum camera_mode {
         IDLE,
@@ -312,6 +318,21 @@ public class DroneModel implements CommonCallbacks.CompletionCallback {
             setControlModes(); // TODO: Can be removed here? Is set in startMotion
 
             mFlightController.setRollPitchCoordinateSystem(FlightCoordinateSystem.BODY);
+
+            // Register obstacle distance callback
+            FlightAssistant fa = mFlightController.getFlightAssistant();
+            if (fa != null) {
+                fa.setVisionDetectionStateUpdatedCallback(state -> {
+                    ObstacleDetectionSector[] sectors = state.getDetectionSectors();
+                    if (sectors == null) return;
+                    for (int i = 0; i < sectors.length && i < mLatestObstacleDistances.length; i++) {
+                        mLatestObstacleDistances[i] = sectors[i].getObstacleDistanceInMeters();
+                    }
+                    mObstacleDataFresh = true;
+                });
+            } else {
+                parent.logMessageDJI("FlightAssistant not available (obstacle sensing disabled)");
+            }
 
             // Not supported by Mavic Mini, DJI Mini 2, DJI Mini SE and Mavic Air 2, DJI Air 2S, so we do it on our own.
             mFlightController.setFlightOrientationMode(FlightOrientationMode.COURSE_LOCK, null);
@@ -735,6 +756,7 @@ public class DroneModel implements CommonCallbacks.CompletionCallback {
     }
 
     void tick() { // Called ever 100ms...
+        if (ticks == 0) Log.d(TAG, "tick() first call");
         ticks += 100;
 
         if (djiAircraft == null)
@@ -746,6 +768,10 @@ public class DroneModel implements CommonCallbacks.CompletionCallback {
                 send_altitude();
                 send_vibration();
                 send_vfr_hud();
+                if (mObstacleDataFresh) {
+                    mObstacleDataFresh = false;
+                    sendObstacleSectors();
+                }
             }
             if (ticks % 200 == 0) {
                 send_global_position_int(); // We use this for the AI se need 5Hz...
@@ -808,6 +834,7 @@ public class DroneModel implements CommonCallbacks.CompletionCallback {
     }
 
     public void sendMessage(MAVLinkMessage msg) {
+        Log.d(TAG, "sendMessage() called, connections=" + parent.mMavlinkReceiver.mavLinkConnections.size());
         if (parent.mMavlinkReceiver.mavLinkConnections.isEmpty()) return;
 
         MAVLinkPacket packet = msg.pack();
@@ -1331,6 +1358,30 @@ public class DroneModel implements CommonCallbacks.CompletionCallback {
         msg.climb = -(short) (mFlightController.getState().getVelocityZ());
 
         sendMessage(msg);
+    }
+
+    private void sendObstacleSectors() {
+        // MAVLink DISTANCE_SENSOR (#132), one message per sector
+        // DJI sectors clockwise from front: 0°, 45°, 90°, 135°, 180°, 225°, 270°, 315°
+        // Mapped to MAV_SENSOR_ROTATION_* values
+        int[] rotations = {0, 47, 6, 48, 12, 49, 18, 50};
+
+        for (int i = 0; i < mLatestObstacleDistances.length; i++) {
+            float distM = mLatestObstacleDistances[i];
+            int distCm = Math.max(1, (int)(distM * 100));
+
+            com.MAVLink.common.msg_distance_sensor msg = new com.MAVLink.common.msg_distance_sensor();
+            msg.time_boot_ms = (int)(System.currentTimeMillis() & 0xFFFFFFFFL);
+            msg.min_distance     = 50;
+            msg.max_distance     = 2000;
+            msg.current_distance = (short) distCm;
+            msg.type             = 0;     // MAV_DISTANCE_SENSOR_LASER (closest match)
+            msg.id               = (byte) i;
+            msg.orientation      = (byte) rotations[i];
+            msg.covariance       = (byte) 255;
+
+            sendMessage(msg);
+        }
     }
 
     void send_home_position() {

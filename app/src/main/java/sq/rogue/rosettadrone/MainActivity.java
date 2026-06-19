@@ -1070,19 +1070,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         public void onProductChanged(BaseProduct baseProduct) {
             // Keep same product (real drone or dummy) selected in the ConnectionActivity
             //mProduct = baseProduct;
-
-            if (mProduct == null) {
-                logMessageDJI("No DJI drone detected");
-                onDroneDisconnected();
-            } else {
-                if (mProduct instanceof Aircraft) {
-                    logMessageDJI("DJI aircraft detected");
-                    onDroneConnected();
-                } else {
-                    logMessageDJI("DJI non-aircraft product detected");
-                    onDroneDisconnected();
-                }
-            }
             notifyStatusChange();
         }
 
@@ -1427,21 +1414,25 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void onDroneConnected() {
+        if (mGCSCommunicator != null) {
+            logMessageDJI("onDroneConnected() already running, ignoring duplicate call");
+            return;
+        }
+        logMessageDJI("onDroneConnected() start");
         if (mProduct.getModel() == null) {
-            logMessageDJI("Aircraft is not on!");
+            logMessageDJI("onDroneConnected() failed: model is null");
             return;
         }
-
+        logMessageDJI("onDroneConnected() past model check");
         if (mProduct.getBattery() == null) {
-            logMessageDJI("Reconnect your android device to the RC for full functionality.");
+            logMessageDJI("onDroneConnected() failed: battery is null");
             return;
         }
-
+        logMessageDJI("onDroneConnected() starting GCS communicator");
         mGCSCommunicator = new GCSCommunicatorAsyncTask(this);
         mGCSCommunicator.execute();
+        logMessageDJI("onDroneConnected() GCS communicator started");
 
-        // Multiple tries and a timeout are necessary because of a bug that causes all the
-        // components of mProduct to be null sometimes.
         int tries = 0;
         while (!mModel.setDjiAircraft((Aircraft) mProduct)) {
             safeSleep(1000);
@@ -1450,16 +1441,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             if (tries == 5) {
                 Toast.makeText(this, "Oops, DJI's SDK just glitched. Please restart the app.",
                         Toast.LENGTH_LONG).show();
-
                 Intent intent = getIntent();
                 finish();
                 startActivity(intent);
                 return;
             }
         }
+        logMessageDJI("onDroneConnected() setDjiAircraft succeeded");
         while (!mModel.loadParamsFromDJI()) {
             safeSleep(100);
         }
+        logMessageDJI("onDroneConnected() params loaded");
         sendDroneConnected();
 
         final Drawable connectedDrawable = getResources().getDrawable(R.drawable.ic_baseline_connected_24px, null);

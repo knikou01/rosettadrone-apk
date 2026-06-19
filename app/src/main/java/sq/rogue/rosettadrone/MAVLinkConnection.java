@@ -27,6 +27,7 @@ public class MAVLinkConnection {
     }
 
     public void send(byte[] bytes) throws IOException {
+        Log.d("MAVLinkConnection", "Sending " + bytes.length + " bytes to " + socket.getInetAddress() + ":" + socket.getPort());
         socket.send(new DatagramPacket(bytes, bytes.length, socket.getInetAddress(), socket.getPort()));
     }
 
