@@ -1529,9 +1529,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void sendRestartVideoService() {
-        String videoIP = getVideoIP();
-        int videoPort = Integer.parseInt(Objects.requireNonNull(prefs.getString("pref_video_port", "5600")));
-        logMessageDJI("Restarting Video link to " + videoIP + ":" + videoPort);
+      String videoIP = getVideoIP();
+      int videoPort = Integer.parseInt(Objects.requireNonNull(prefs.getString("pref_video_port", "5600")));
+      logMessageDJI("Restarting Video link to " + videoIP + ":" + videoPort);
+      if (videoService != null) {
+        videoService.setParameters(videoIP, videoPort, mVideoBitrate, mEncodeSpeed);
+        logMessageDJI("Video service restarted with new IP: " + videoIP);
+      }
     }
 
     private void sendDroneConnected() {
