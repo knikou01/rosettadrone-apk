@@ -4,6 +4,8 @@ A fork of [RosettaDrone](https://github.com/RosettaDrone/rosettadrone) that prov
 
 RosettaDrone is a MAVLink wrapper for DJI drones, allowing you to control DJI hardware using ground control stations like QGroundControl.
 
+For older android devices and the DJI smart controller, see the android7-smart-controller branch.
+
 ## What this fork adds
 
 - First-launch setup screen that guides you through getting your API keys
